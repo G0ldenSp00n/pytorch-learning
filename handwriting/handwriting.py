@@ -10,7 +10,7 @@ train_loader = torch.utils.data.DataLoader(
                                    torchvision.transforms.Normalize(
                                        (0.1307,), (0.3081,))
                                ])),
-    batch_size=1000, shuffle=True)
+    batch_size=64, shuffle=True)
 
 test_loader = torch.utils.data.DataLoader(
     torchvision.datasets.MNIST('data/', train=False, download=False,
@@ -21,7 +21,7 @@ test_loader = torch.utils.data.DataLoader(
                                ])),
     batch_size=64, shuffle=True)
 
-examples = enumerate(train_loader)
+examples = enumerate(test_loader)
 batch_idx, (example_data, example_targets) = next(examples)
 print(example_data.shape)
 fig = plt.figure()
@@ -44,18 +44,21 @@ w3 = torch.rand(16, 16)
 b3 = torch.rand(16)
 output = torch.zeros(10)
 
-for p in range(1000):
-    sigmoid = torch.nn.ReLU()
-    for i in range(16):
-        weightedInput = example_data[p][0].flatten().dot(w1[i])
-        layer_1[i] = sigmoid(weightedInput.add(b1[i]))
+data_iter = enumerate(train_loader)
+for y in range(64):
+    batch_id, (data, target) = next(data_iter)
+    for p in range(64):
+        sigmoid = torch.nn.ReLU()
+        for i in range(16):
+            weightedInput = data[p][0].flatten().dot(w1[i])
+            layer_1[i] = sigmoid(weightedInput.add(b1[i]))
 
-    for i in range(16):
-        weightedInput = layer_1.dot(w2[i])
-        layer_2[i] = sigmoid(weightedInput.add(b2[i]))
+        for i in range(16):
+            weightedInput = layer_1.dot(w2[i])
+            layer_2[i] = sigmoid(weightedInput.add(b2[i]))
 
-    for i in range(10):
-        weightedInput = layer_2.dot(w3[i])
-        output[i] = sigmoid(weightedInput.add(b3[i]))
-    print("Output", torch.topk(output, 1).indices, " - Target",
-          example_targets[p])
+        for i in range(10):
+            weightedInput = layer_2.dot(w3[i])
+            output[i] = sigmoid(weightedInput.add(b3[i]))
+        print("Output", torch.topk(output, 1).indices, " - Target",
+              target[p])
