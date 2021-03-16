@@ -47,6 +47,7 @@ output = torch.zeros(10)
 data_iter = enumerate(train_loader)
 for y in range(64):
     batch_id, (data, target) = next(data_iter)
+    trainingCost = torch.zeros(64)
     for p in range(64):
         sigmoid = torch.nn.ReLU()
         for i in range(16):
@@ -62,3 +63,7 @@ for y in range(64):
             output[i] = sigmoid(weightedInput.add(b3[i]))
         print("Output", torch.topk(output, 1).indices, " - Target",
               target[p])
+        targetTensor = torch.zeros(10)
+        targetTensor[target[p]] = 1
+        trainingCost[p] = output.sub(targetTensor).pow(2).sum()
+    print("Cost", trainingCost.sum().div(64))
